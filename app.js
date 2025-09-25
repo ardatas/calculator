@@ -46,24 +46,27 @@ function inputOperationSign(btnValue) {
     return sign;
 }
 
-function reverseNum(arrItem) {
-    let reversedNum = "(" + -arrItem + ")"
-    calculator.displayValue = calculator.displayValue.replace(arrItem, reversedNum)
-    displayText.innerHTML = calculator.displayValue;
-    calculator.didReverse = true;
+// function reverseNum(arrItem) {
+//     let reversedNum = "(" + -arrItem + ")"
+//     calculator.displayValue = calculator.displayValue.replace(arrItem, reversedNum)
+//     displayText.innerHTML = calculator.displayValue;
+//     calculator.didReverse = true;
+// }
+
+function back(arr) {
+    calculator.displayValue = arr.slice(0, -1)
+    displayText.innerHTML = calculator.displayValue
 }
 
 function calculate(operationSign) {
 
-    let operandArr = calculator.displayValue.split(operationSign);
+    const lastOperatorIndex = calculator.displayValue.lastIndexOf(operationSign);
+
+    const num1String = calculator.displayValue.substring(0, lastOperatorIndex);
+    const num2String = calculator.displayValue.substring(lastOperatorIndex + 1);
     
-    if (operandArr.length < 2) {
-        console.log("Error: Missing second operand");
-        return;
-    }
-    
-    let num1 = parseFloat(operandArr[0].replace(/[()]/g, ''));
-    let num2 = parseFloat(operandArr[1].replace(/[()]/g, ''));
+    const num1 = parseFloat(num1String.replace(/[()]/g, ''));
+    const num2 = parseFloat(num2String.replace(/[()]/g, ''));
 
     let result = '0';
 
@@ -89,12 +92,7 @@ function calculate(operationSign) {
 
     //reset didReverse boolean
     calculator.didReverse = false;
-    //for debugging purposes
-    console.log(operandArr)
-    console.log(num1)
-    console.log(num2)
 }
-
 
 buttons.addEventListener('click', (e) => { 
 
@@ -112,6 +110,10 @@ buttons.addEventListener('click', (e) => {
         clear();
     }
 
+    if(btnValue === '↻') {
+        back(calculator.displayValue)
+    }
+
     // display first operand
     if(numArr.includes(btnValue)) {
         inputNumber(btnValue)
@@ -119,23 +121,51 @@ buttons.addEventListener('click', (e) => {
     
     // Store the operation sign and store first operand
     if(operatorArr.includes(btnValue)) {
-        inputOperationSign(btnValue)
+        if(!(/[\d][+\-÷×]/).test(calculator.displayValue)){
+            inputOperationSign(btnValue)
+        }
     }
     
-    if(btnValue === '+/-') {
-        if(!(/[+\-÷×]/).test(calculator.displayValue)) {
-            reverseNum(displayArr[0])
+    if (btnValue === '+/-') {
+        if(calculator.displayValue === '0') return;
+        if((/[+\-÷×]/).test(calculator.displayValue[calculator.displayValue.length-1])) return;
+
+        // Check for the last occurrence of an operator to determine if we're
+        // modifying the first or second operand.
+        const lastOperatorIndex = Math.max(
+            calculator.displayValue.lastIndexOf('+'),
+            calculator.displayValue.lastIndexOf('-'),
+            calculator.displayValue.lastIndexOf('×'),
+            calculator.displayValue.lastIndexOf('÷')
+        );
+
+        let numToReverse;
+        let reversedNum;
+
+        if (lastOperatorIndex === -1) {
+            // No operator found, so we're reversing the first operand.
+            // The displayValue is the number we need to reverse.
+            numToReverse = calculator.displayValue;
+            reversedNum = `(${-parseFloat(numToReverse)})`;
+            calculator.displayValue = reversedNum;
+
         } else {
-            let parts = calculator.displayValue.split(calculator.operator)
-            let secondOperand = parts[parts.length - 1]
-            reverseNum(secondOperand)
+            // Operator found, so we're reversing the second operand.
+            // Get the substring after the last operator.
+            numToReverse = calculator.displayValue.substring(lastOperatorIndex + 1);
+
+            // Reverse the number and rebuild the display string.
+            reversedNum = `(${-parseFloat(numToReverse)})`;
+            calculator.displayValue =
+                calculator.displayValue.substring(0, lastOperatorIndex + 1) + reversedNum;
         }
+
+        displayText.innerHTML = calculator.displayValue;
+        calculator.didReverse = true;
     }
 
     if(btnValue === '=') {
         calculate(calculator.operator)
     }
 
-    console.log(calculator.displayValue)
-    console.log(displayArr)
 })
