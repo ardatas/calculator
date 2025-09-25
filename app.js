@@ -54,8 +54,14 @@ function reverseNum(arrItem) {
 }
 
 function calculate(operationSign) {
-    let operandArr = calculator.displayValue.split(/\b[+\-÷×]/)
 
+    let operandArr = calculator.displayValue.split(operationSign);
+    
+    if (operandArr.length < 2) {
+        console.log("Error: Missing second operand");
+        return;
+    }
+    
     let num1 = parseFloat(operandArr[0].replace(/[()]/g, ''));
     let num2 = parseFloat(operandArr[1].replace(/[()]/g, ''));
 
@@ -120,7 +126,9 @@ buttons.addEventListener('click', (e) => {
         if(!(/[+\-÷×]/).test(calculator.displayValue)) {
             reverseNum(displayArr[0])
         } else {
-            reverseNum(displayArr[1])
+            let parts = calculator.displayValue.split(calculator.operator)
+            let secondOperand = parts[parts.length - 1]
+            reverseNum(secondOperand)
         }
     }
 
@@ -128,7 +136,6 @@ buttons.addEventListener('click', (e) => {
         calculate(calculator.operator)
     }
 
-    console.log(calculator.operator)
-    console.log(calculator.waitingforNextOperand)
     console.log(calculator.displayValue)
+    console.log(displayArr)
 })
