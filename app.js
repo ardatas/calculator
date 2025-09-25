@@ -1,81 +1,134 @@
-const btnContainer = document.querySelector('.btn-container');
-const output = document.querySelector('.output');
-const signs = document.querySelectorAll('.sign')
+const buttons = document.querySelector('.btn-container')
+const displayText = document.querySelector('.output')
+const calcHistory = document.querySelector('.calculation')
+const numArr = ['1','2','3','4','5','6','7','8','9','0']
+const operatorArr = ['+', '-', '×', '÷']
 
-let displayValue = 0
-let numHandle = false
-let operatorHandle = false
-let equalHandle = false
+let calculator = new Object();
+calculator = {
+    displayValue: '0',
+    waitingforNextOperand: false,
+    operator: null,
+    didReverse: false,
+}
 
-//function for handling 
 function clear() {
-    output.textContent = ""
+    calculator.displayValue = '0';
+    calculator.waitingforNextOperand = false;
+    calculator.operator = null; 
+    calculator.didReverse = false;
+    displayText.innerHTML = '0';
+    calcHistory.innerHTML = '';
 }
 
-function setDefault() {
-    output.textContent = "0"
-    numHandle = false
-    operatorHandle = false
-    equalHandle = false
+function inputNumber(btnValue) {
+
+    if(calculator.displayValue === '0'){
+        calculator.displayValue = btnValue;
+        calculator.waitingforNextOperand = false;
+    } else if (calculator.waitingforNextOperand) {
+        calculator.displayValue += btnValue;
+    } else {
+        calculator.displayValue += btnValue;
+    }
+
+    displayText.innerHTML = calculator.displayValue;
 }
 
-function handleNum(content) {
-    // Case 1: Replace "0" or start fresh
-    if (output.textContent === "0" || operatorHandle) {
-        output.textContent = content;
-        displayValue = content;
-        operatorHandle = false; // Reset operator flag
-        numHandle = true;
-        return;
-    }
-    
-    // Case 2: Add digit to existing number
-    output.textContent += content;
-    displayValue = output.textContent;
-    numHandle = true;
+function inputOperationSign(btnValue) {
+
+    calculator.operator = btnValue;
+    calculator.displayValue += btnValue;
+    calculator.waitingforNextOperand = true;
+
+    displayText.innerHTML = calculator.displayValue;
+    const sign = btnValue
+    return sign;
 }
 
-function handleOperator(content) {
-    // Don't allow operator if no number has been entered
-    if (!numHandle) {
-        return;
-    }
-    
-    // If we already have an operator and user enters another one,
-    // just replace the operator (like "5+" then user clicks "-")
-    if (operatorHandle && !equalHandle) {
-        // Remove last character (the previous operator) and add new one
-        output.textContent = output.textContent.slice(0, -1) + content;
-        return;
-    }
-    
-    // Normal case: add operator to display
-    output.textContent += content;
-    operatorHandle = true;
-    equalHandle = false;
+function reverseNum(arrItem) {
+    let reversedNum = "(" + -arrItem + ")"
+    calculator.displayValue = calculator.displayValue.replace(arrItem, reversedNum)
+    displayText.innerHTML = calculator.displayValue;
+    calculator.didReverse = true;
 }
 
-btnContainer.addEventListener('click', function(e){
+function calculate(operationSign) {
+    let operandArr = calculator.displayValue.split(/\b[+\-÷×]/)
+
+    let num1 = parseFloat(operandArr[0].replace(/[()]/g, ''));
+    let num2 = parseFloat(operandArr[1].replace(/[()]/g, ''));
+
+    let result = '0';
+
+    switch (operationSign) {
+        case '+':
+            result = String(Math.round((num1 + num2) * 1000) / 1000);
+            break;
+        case '-':
+            result = String(Math.round((num1 - num2) * 1000) / 1000);
+            break;
+        case '÷':
+            result = String(Math.round((num1 / num2) * 1000) / 1000);
+            break;
+        case '×':
+            result = String(Math.round((num1 * num2) * 1000) / 1000);
+            break;
+    }
+
+    let calculation = calculator.displayValue;
+    calcHistory.innerHTML = calculation;
+    calculator.displayValue = result; 
+    displayText.innerHTML = result
+
+    //reset didReverse boolean
+    calculator.didReverse = false;
+    //for debugging purposes
+    console.log(operandArr)
+    console.log(num1)
+    console.log(num2)
+}
+
+
+buttons.addEventListener('click', (e) => { 
+
+    let displayArr = calculator.displayValue.split(/\b[+\-÷×]/)
+
+    let btnValue = e.target.innerHTML; 
+
+    // make sure only buttons in the container are clickable
+    if(!(e.target.tagName === 'BUTTON')) {
+        return;
+    } 
+
+    // AC button to clear screen and bring calculator obj to default
+    if(btnValue === 'AC') {
+        clear();
+    }
+
+    // display first operand
+    if(numArr.includes(btnValue)) {
+        inputNumber(btnValue)
+    }
     
-    if(!e.target.matches('button')) return;
-
-    const buttonText = e.target.textContent;
-
-    // Handle AC
-    if(buttonText === "AC") {
-        setDefault();
-        return;
+    // Store the operation sign and store first operand
+    if(operatorArr.includes(btnValue)) {
+        inputOperationSign(btnValue)
+    }
+    
+    if(btnValue === '+/-') {
+        if(!(/[+\-÷×]/).test(calculator.displayValue)) {
+            reverseNum(displayArr[0])
+        } else {
+            reverseNum(displayArr[1])
+        }
     }
 
-    // Handle numbers (0-9)
-    if ('0123456789'.includes(buttonText)) {
-        handleNum(buttonText);
-        return;
+    if(btnValue === '=') {
+        calculate(calculator.operator)
     }
 
-    // Handle operators
-    if ('+-×÷'.includes(buttonText)) {
-        handleOperator(buttonText);
-        return;
-    }
-});
+    console.log(calculator.operator)
+    console.log(calculator.waitingforNextOperand)
+    console.log(calculator.displayValue)
+})

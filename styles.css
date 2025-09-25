@@ -48,9 +48,9 @@ body {
 .container {
     display: flex;
     flex-direction: column;
-    background-color: #343434;
+    background-color: rgb(50, 49, 49);
     height: 40vw;
-    max-width: 900px;
+    max-width: 600px;
     aspect-ratio: 9/16;
     padding: 20px;
     border-radius: 15px;
@@ -58,10 +58,11 @@ body {
 
 @media (max-width: 1025px) {
     .container {
-        height: 60vh;
-        width: 40vw;
+        height: 55vh;
+        width: 30vw;
         padding: 15px;
         border-radius: 20px;
+        max-width: 500px;
     }
     
     body {
@@ -70,33 +71,40 @@ body {
 
 }
 
-@media (max-width: 450px) {
+@media (max-width: 600px) {
     .container {
         height: 50vh;
         width: 50vw;
         padding: 15px;
         border-radius: 20px;
         font-size: 10px;
+        min-width: 200px
     }
     
     body {
         padding: 10px; /* Add some body padding */
     }
-
 }
 
 .output-container {
     display: flex; 
-    justify-content: flex-end;
-    margin-top: auto;;
+    align-items: flex-end;
+    flex-direction: column;
+    margin-top: auto;
 }
 
-.output-container>span{
+.output-container > span {
     padding-right: 10px;
-    font-size: 3.5em;
+    font-size: 4em;
     color: white;
-
 }
+
+.output-container > .calculation {
+    color: gray;
+    font-size: 2.5em;
+    padding-right: 10px;
+}
+
 
 .btn-container {
     display: flex;
