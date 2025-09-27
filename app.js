@@ -9,14 +9,13 @@ calculator = {
     displayValue: '0',
     waitingforNextOperand: false,
     operator: null,
-    didReverse: false,
+    isResult: false,
 }
 
 function clear() {
     calculator.displayValue = '0';
     calculator.waitingforNextOperand = false;
     calculator.operator = null; 
-    calculator.didReverse = false;
     displayText.innerHTML = '0';
     calcHistory.innerHTML = '';
 }
@@ -40,18 +39,12 @@ function inputOperationSign(btnValue) {
     calculator.operator = btnValue;
     calculator.displayValue += btnValue;
     calculator.waitingforNextOperand = true;
+    calculator.isResult = false;
 
     displayText.innerHTML = calculator.displayValue;
     const sign = btnValue
     return sign;
 }
-
-// function reverseNum(arrItem) {
-//     let reversedNum = "(" + -arrItem + ")"
-//     calculator.displayValue = calculator.displayValue.replace(arrItem, reversedNum)
-//     displayText.innerHTML = calculator.displayValue;
-//     calculator.didReverse = true;
-// }
 
 function back(arr) {
     calculator.displayValue = arr.slice(0, -1)
@@ -68,6 +61,9 @@ function calculate(operationSign) {
     const num1 = parseFloat(num1String.replace(/[()]/g, ''));
     const num2 = parseFloat(num2String.replace(/[()]/g, ''));
 
+    if(!num1) return;
+    if(!num2) return;
+
     let result = '0';
 
     switch (operationSign) {
@@ -78,25 +74,36 @@ function calculate(operationSign) {
             result = String(Math.round((num1 - num2) * 1000) / 1000);
             break;
         case '÷':
-            result = String(Math.round((num1 / num2) * 1000) / 1000);
+            if(num2 === 0) {
+                alert("Error: Cannot divide by Zero \nRestarting the calculator...")
+                clear()
+            }
+            else result = String(Math.round((num1 / num2) * 1000) / 1000);
             break;
         case '×':
             result = String(Math.round((num1 * num2) * 1000) / 1000);
             break;
     }
 
-    let calculation = calculator.displayValue;
-    calcHistory.innerHTML = calculation;
-    calculator.displayValue = result; 
-    displayText.innerHTML = result
+    if(result === "NaN") {
+        alert('Error: Not a number \nRestarting the calculator...')
+        clear()
+    } else {
+        let calculation = calculator.displayValue;
+        calcHistory.innerHTML = calculation;
+        calculator.displayValue = result; 
+        calculator.isResult = true;
+        displayText.innerHTML = result
+    
+    }
 
-    //reset didReverse boolean
-    calculator.didReverse = false;
+    console.log(num1)
+    console.log(num2)
 }
 
 buttons.addEventListener('click', (e) => { 
 
-    let displayArr = calculator.displayValue.split(/\b[+\-÷×]/)
+    // let displayArr = calculator.displayValue.split(/\b[+\-÷×]/)
 
     let btnValue = e.target.innerHTML; 
 
@@ -161,11 +168,14 @@ buttons.addEventListener('click', (e) => {
         }
 
         displayText.innerHTML = calculator.displayValue;
-        calculator.didReverse = true;
     }
 
     if(btnValue === '=') {
         calculate(calculator.operator)
+        calculator.waitingforNextOperand = false;
     }
+
+    console.log(calculator.displayValue)
+    console.log(calculator.waitingforNextOperand)
 
 })
