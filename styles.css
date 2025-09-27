@@ -58,13 +58,10 @@ body {
 
 @media (max-width: 1025px) {
     .container {
-        height: 60vh;
-        width: 30vw;
+        height: 70vh;
+        width: 50vw;
         padding: 15px;
         border-radius: 20px;
-        max-width: 200px;
-        max-height: 600px;
-        min-width: 250px;
     }
     
     body {
@@ -73,20 +70,36 @@ body {
 
 }
 
-@media (max-width: 600px) {
+@media (max-width: 450px) {
     .container {
-        height: 50vh;
-        width: 30vw;
+        height: 60vh;
+        width: 60vw;
         padding: 15px;
         border-radius: 20px;
         font-size: 10px;
-        min-width: 200px
     }
     
     body {
         padding: 10px; /* Add some body padding */
     }
+
+    .dot-symbol {
+        font-size: 1em;
+    }
 }
+
+@media (max-width: 360px) {
+    .container {
+        height: 60vh;
+        width: 60vw;
+        padding: 15px;
+        border-radius: 20px;
+        font-size: 10px;
+        min-width: 180px;
+        min-height: 320px;
+    }
+}
+
 
 .output-container {
     display: flex; 
@@ -123,6 +136,7 @@ body {
     align-items: stretch;
     gap: 5px; 
     margin-top: auto;
+    align-items: center;
 }
 
 .btn-container > div > button {

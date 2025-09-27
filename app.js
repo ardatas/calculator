@@ -182,7 +182,7 @@ buttons.addEventListener('click', (e) => {
     
     // Store the operation sign and store first operand
     if(operatorArr.includes(btnValue)) {
-        if(!(/[\d][+\-÷×]/).test(calculator.displayValue)){
+        if(!(/[\d)][+\-÷×]/).test(calculator.displayValue)){
             inputOperationSign(btnValue)
         }
     }
