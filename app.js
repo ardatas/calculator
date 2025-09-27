@@ -10,7 +10,6 @@ calculator = {
     waitingforNextOperand: false,
     operator: null,
     isResult: false,
-    isNegated: false,
 }
 
 function clear() {
@@ -18,7 +17,6 @@ function clear() {
     calculator.waitingforNextOperand = false;
     calculator.operator = null; 
     calculator.isResult = false;
-    calculator.isNegated = false;
     displayText.innerHTML = '0';
     calcHistory.innerHTML = '';
 }
@@ -150,10 +148,10 @@ function negateNum() {
             newOperand = `(${-cleanedNum})`
         }
     }
-    
-    calculator.isNegated = true;
+
     calculator.displayValue = prefix + newOperand
     displayText.innerHTML = calculator.displayValue;
+    calculator.isResult = false;
 }
 
 
@@ -187,7 +185,6 @@ buttons.addEventListener('click', (e) => {
         if(!(/[\d][+\-÷×]/).test(calculator.displayValue)){
             inputOperationSign(btnValue)
         }
-        calculator.isNegated = false;
     }
     
     if (btnValue === '+/-') {
