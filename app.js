@@ -10,12 +10,15 @@ calculator = {
     waitingforNextOperand: false,
     operator: null,
     isResult: false,
+    isNegated: false,
 }
 
 function clear() {
     calculator.displayValue = '0';
     calculator.waitingforNextOperand = false;
     calculator.operator = null; 
+    calculator.isResult = false;
+    calculator.isNegated = false;
     displayText.innerHTML = '0';
     calcHistory.innerHTML = '';
 }
@@ -27,6 +30,9 @@ function inputNumber(btnValue) {
         calculator.waitingforNextOperand = false;
     } else if (calculator.waitingforNextOperand) {
         calculator.displayValue += btnValue;
+    } else if(calculator.isResult) {
+        calculator.displayValue = btnValue;
+        calculator.isResult = false;
     } else {
         calculator.displayValue += btnValue;
     }
@@ -61,8 +67,8 @@ function calculate(operationSign) {
     const num1 = parseFloat(num1String.replace(/[()]/g, ''));
     const num2 = parseFloat(num2String.replace(/[()]/g, ''));
 
-    if(!num1) return;
-    if(!num2) return;
+    // if(!num1) return;
+    // if(!num2) return;
 
     let result = '0';
 
@@ -96,10 +102,60 @@ function calculate(operationSign) {
         displayText.innerHTML = result
     
     }
-
-    console.log(num1)
-    console.log(num2)
 }
+
+function negateNum() {
+
+    if(calculator.displayValue === '0') return;
+    
+    const isOperatorAtEnd = (/[+\-÷×]/).test(calculator.displayValue[calculator.displayValue.length-1]);
+    if(isOperatorAtEnd) return;
+
+    const binaryOperatorRegex = /(?<=[\d)])[+\-÷×]/g;    
+    let operatorIndex = -1;
+    let arr;
+    
+    while ((arr = binaryOperatorRegex.exec(calculator.displayValue)) !== null) {
+        operatorIndex = arr.index 
+    }
+    
+    let currentOperand;
+    let prefix = '';
+
+    // handle regarding the operand
+    if (operatorIndex === -1) { 
+        currentOperand = calculator.displayValue
+    } else {
+        currentOperand = calculator.displayValue.substring(operatorIndex+1)
+        prefix = calculator.displayValue.substring(0, operatorIndex+1)
+    }
+
+    // negate
+    const cleanedNum = parseFloat(currentOperand.replace(/[()]/g, ''))
+    
+    let newOperand; 
+
+    if(currentOperand.startsWith('(') && currentOperand.endsWith(')')) {
+        // Already in parentheses, extract the inner value and negate it
+        const innerValue = currentOperand.slice(1, -1);
+        const cleanedNum = parseFloat(innerValue);
+        newOperand = String(-cleanedNum);
+    } else {
+        // Not in parentheses, apply original logic
+        const cleanedNum = parseFloat(currentOperand.replace(/[()]/g, ''));
+        
+        if(cleanedNum < 0) {
+            newOperand = String(-cleanedNum);
+        } else {
+            newOperand = `(${-cleanedNum})`
+        }
+    }
+    
+    calculator.isNegated = true;
+    calculator.displayValue = prefix + newOperand
+    displayText.innerHTML = calculator.displayValue;
+}
+
 
 buttons.addEventListener('click', (e) => { 
 
@@ -131,51 +187,15 @@ buttons.addEventListener('click', (e) => {
         if(!(/[\d][+\-÷×]/).test(calculator.displayValue)){
             inputOperationSign(btnValue)
         }
+        calculator.isNegated = false;
     }
     
     if (btnValue === '+/-') {
-        if(calculator.displayValue === '0') return;
-        if((/[+\-÷×]/).test(calculator.displayValue[calculator.displayValue.length-1])) return;
-
-        // Check for the last occurrence of an operator to determine if we're
-        // modifying the first or second operand.
-        const lastOperatorIndex = Math.max(
-            calculator.displayValue.lastIndexOf('+'),
-            calculator.displayValue.lastIndexOf('-'),
-            calculator.displayValue.lastIndexOf('×'),
-            calculator.displayValue.lastIndexOf('÷')
-        );
-
-        let numToReverse;
-        let reversedNum;
-
-        if (lastOperatorIndex === -1) {
-            // No operator found, so we're reversing the first operand.
-            // The displayValue is the number we need to reverse.
-            numToReverse = calculator.displayValue;
-            reversedNum = `(${-parseFloat(numToReverse)})`;
-            calculator.displayValue = reversedNum;
-
-        } else {
-            // Operator found, so we're reversing the second operand.
-            // Get the substring after the last operator.
-            numToReverse = calculator.displayValue.substring(lastOperatorIndex + 1);
-
-            // Reverse the number and rebuild the display string.
-            reversedNum = `(${-parseFloat(numToReverse)})`;
-            calculator.displayValue =
-                calculator.displayValue.substring(0, lastOperatorIndex + 1) + reversedNum;
-        }
-
-        displayText.innerHTML = calculator.displayValue;
+        negateNum()
     }
 
     if(btnValue === '=') {
         calculate(calculator.operator)
         calculator.waitingforNextOperand = false;
     }
-
-    console.log(calculator.displayValue)
-    console.log(calculator.waitingforNextOperand)
-
 })
