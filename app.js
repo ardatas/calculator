@@ -10,6 +10,7 @@ calculator = {
     waitingforNextOperand: false,
     operator: null,
     isResult: false,
+    isSecondOperandNegated: false,
 }
 
 function clear() {
@@ -19,6 +20,7 @@ function clear() {
     calculator.isResult = false;
     displayText.innerHTML = '0';
     calcHistory.innerHTML = '';
+    calculator.isSecondOperandNegated = false;
 }
 
 function inputNumber(btnValue) {
@@ -57,7 +59,8 @@ function back(arr) {
 
 function calculate(operationSign) {
 
-    const lastOperatorIndex = calculator.displayValue.lastIndexOf(operationSign);
+    const binaryOperatorRegex = /(?<=[\d)])[+\-÷×]/g;    
+    const lastOperatorIndex = calculator.displayValue.search(binaryOperatorRegex);
 
     const num1String = calculator.displayValue.substring(0, lastOperatorIndex);
     const num2String = calculator.displayValue.substring(lastOperatorIndex + 1);
@@ -100,6 +103,10 @@ function calculate(operationSign) {
         displayText.innerHTML = result
     
     }
+
+    console.log(num1)
+    console.log(num2)
+    console.log(lastOperatorIndex)
 }
 
 function negateNum() {
@@ -114,7 +121,7 @@ function negateNum() {
     let arr;
     
     while ((arr = binaryOperatorRegex.exec(calculator.displayValue)) !== null) {
-        operatorIndex = arr.index 
+        operatorIndex = arr.index   
     }
     
     let currentOperand;
@@ -152,6 +159,8 @@ function negateNum() {
     calculator.displayValue = prefix + newOperand
     displayText.innerHTML = calculator.displayValue;
     calculator.isResult = false;
+
+    console.log(arr)
 }
 
 
@@ -195,4 +204,6 @@ buttons.addEventListener('click', (e) => {
         calculate(calculator.operator)
         calculator.waitingforNextOperand = false;
     }
+
+    console.log(calculator.operator)
 })
